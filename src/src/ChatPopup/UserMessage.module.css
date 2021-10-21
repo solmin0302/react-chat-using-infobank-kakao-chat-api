@@ -1,0 +1,55 @@
+.container {
+  max-width: 280px;
+  margin-top: 16px;
+}
+
+.container.continue {
+  margin-top: 8px;
+}
+
+.container.customer {
+  align-self: flex-start;
+  margin-left: 16px;
+}
+
+.container.user {
+  align-self: flex-end; 
+  margin-right: 16px;
+}
+
+.container .name {
+  font-size: 12px;
+  margin-bottom: 2px;
+  color:#80808F;
+}
+
+.container .message {
+  padding: 12px;
+  border-radius: 8px;
+  box-sizing: border-box;
+}
+
+.container.customer .message {
+  color:#1B283F;
+  border:1px solid #E5EAEE;
+}
+
+.container.user .message {
+  align-self: flex-end;
+  background-color: #3699FF;
+}
+
+.container.user .message .subName {
+  font-weight: 700;
+  font-size: 13px;
+  margin-bottom: 2px;
+  color: white;
+}
+
+.container .message .content .text{
+  font-size: 14px;
+}
+
+.container.user .message .content .text{
+  color: white;
+}

@@ -1,33 +1,47 @@
 import classNames from 'classnames/bind';
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import styles from './index.css'
 import { Messenger } from './src/Messenger/Messenger';
 import { debounce } from 'lodash';
+import { ChatPopup } from './src/ChatPopup/ChatPopup';
 
 export const ExampleComponent = ({ text }) => {
 
-  const [connectedPopup,setConnectedPopup] = useState([]);
+  const [connectedPopup, setConnectedPopup] = useState([]);
   const [maximumPopupCount, setMaximumPopupCount] = useState(0);
 
-  const onWindowResize = debounce(()=>{
-    console.log(`Window Resized  ${window.innerWidth}`);
-  },500)
+  const debouncedSave = useRef(debounce((width, prevConnectedPopup) => {
+    const remainSpace = width -  316;
+    const expectedMaximumPopupCount = parseInt(remainSpace / 376);
+    setMaximumPopupCount(expectedMaximumPopupCount);
+
+    const newResult = prevConnectedPopup.slice(0,expectedMaximumPopupCount);
+    setConnectedPopup(newResult);
+  }, 500)).current;
+
+  const onWindowResize = () => {
+    debouncedSave(window.innerWidth, connectedPopup);
+  }
 
   useEffect(()=>{
-    console.log("INITIALIZED");
+    const remainSpace = window.innerWidth -  316;
+    const expectedMaximumPopupCount = parseInt(remainSpace / 376);
+    setMaximumPopupCount(expectedMaximumPopupCount);
 
-    console.log("INITIALIZED");
-    window.addEventListener('resize',onWindowResize);
+    window.addEventListener('resize', onWindowResize);
     return ()=>{
-      window.removeEventListener('resize',onWindowResize);
+      window.removeEventListener('resize', onWindowResize);
     }
-  },[]);
+  },[connectedPopup, maximumPopupCount]);
 
   const cx = classNames.bind(styles);
   const onChatPopupRequest = (data)=>{
-    console.log(data);
+    if(connectedPopup.findIndex(d=>d.id === data.id) !== -1)
+    {
+      return;
+    }
 
-    if(maximumPopupCount < connectedPopup.length + 1)
+    if(connectedPopup.length < maximumPopupCount)
     {
       setConnectedPopup([...connectedPopup, data]);
     }
@@ -38,10 +52,15 @@ export const ExampleComponent = ({ text }) => {
     }
   }
 
+  const closePopup = (data) => {
+    const newResult = connectedPopup.filter((d)=>d.id !== data.id);
+    setConnectedPopup(newResult);
+  }
+
   return (
     <div className={cx('main')}>
       <Messenger onChatPopupRequest={onChatPopupRequest} />
-      {connectedPopup.map(()=><div></div>)}
+      {connectedPopup.map((data)=><ChatPopup onClose={closePopup} data={data} key={data.id}/>)}
     </div>
   )
 }

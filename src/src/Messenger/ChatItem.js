@@ -8,7 +8,6 @@ export const ChatItem = ({onItemClick, data, ...props}) => {
   const getToday = ()=> {
     let today = new Date();
     let todayString = `${today.getFullYear()}-${today.getMonth()+1}-${today.getDate()>9?today.getDate():`0${today.getDate()}`}T00:00:00`;
-    console.log(todayString);
     return new Date(todayString);
   };
 
@@ -39,7 +38,7 @@ export const ChatItem = ({onItemClick, data, ...props}) => {
       </div>
       <div className={cx('content')}>
         <p className={cx('latestMessage')}>{data.latestMessage}</p>
-        <div className={cx('newMsgCount')}><p>{data.unleadMessagecCount}</p></div>
+        {data.unleadMessagecCount&&<p className={cx('newMsgCount')}>답변대기</p>}
       </div>
     </div>
   )
