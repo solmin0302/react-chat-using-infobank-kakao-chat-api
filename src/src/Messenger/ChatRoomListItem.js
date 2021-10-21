@@ -1,8 +1,8 @@
 import classNames from 'classnames/bind';
 import React, { useState } from 'react';
-import styles from './ChatItem.module.css';
+import styles from './ChatRoomListItem.module.css';
 
-export const ChatItem = ({onItemClick, data, ...props}) => {
+export const ChatRoomListItem = ({onItemClick, data, ...props}) => {
   const cx = classNames.bind(styles);
 
   const getToday = ()=> {
@@ -18,7 +18,8 @@ export const ChatItem = ({onItemClick, data, ...props}) => {
 
     if(dateDiff < 1)
     {
-      return `${targetDate.toLocaleTimeString([],{ hour: '2-digit', minute: '2-digit' })}`;
+      const dateStringToObj = new Date(dateString);
+      return `${dateStringToObj.toLocaleTimeString([],{ hour: '2-digit', minute: '2-digit' })}`;
     }
     else if(dateDiff < 2) {
       return `어제`;
@@ -33,12 +34,12 @@ export const ChatItem = ({onItemClick, data, ...props}) => {
       onItemClick(data)
     }}>
       <div className={cx('header')}>
-        <p className={cx('name')}>{data.name}</p>
-        <p className={cx('date')}>{getTimeString(data.date)}</p>
+        <p className={cx('name')}>{data.customerName}</p>
+        <p className={cx('date')}>{getTimeString(data.latestChat.messageDt)}</p>
       </div>
       <div className={cx('content')}>
-        <p className={cx('latestMessage')}>{data.latestMessage}</p>
-        {data.unleadMessagecCount&&<p className={cx('newMsgCount')}>답변대기</p>}
+        <p className={cx('latestMessage')}>{data.latestChat.messageText}</p>
+        {data.unansweredChats?<p className={cx('newMsgCount')}>답변대기</p>:null}
       </div>
     </div>
   )

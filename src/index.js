@@ -2,11 +2,10 @@ import classNames from 'classnames/bind';
 import React, { useEffect, useRef, useState } from 'react'
 import styles from './index.css'
 import { Messenger } from './src/Messenger/Messenger';
-import { debounce } from 'lodash';
+import { debounce, rest } from 'lodash';
 import { ChatPopup } from './src/ChatPopup/ChatPopup';
 
-export const ExampleComponent = ({ text }) => {
-
+export const KakaoChat = ({ connectionHeaders, brandId, serverUrl, userId, ...rest }) => {
   const [connectedPopup, setConnectedPopup] = useState([]);
   const [maximumPopupCount, setMaximumPopupCount] = useState(0);
 
@@ -36,7 +35,7 @@ export const ExampleComponent = ({ text }) => {
 
   const cx = classNames.bind(styles);
   const onChatPopupRequest = (data)=>{
-    if(connectedPopup.findIndex(d=>d.id === data.id) !== -1)
+    if(connectedPopup.findIndex(d=>d.roomId === data.roomId) !== -1)
     {
       return;
     }
@@ -53,14 +52,14 @@ export const ExampleComponent = ({ text }) => {
   }
 
   const closePopup = (data) => {
-    const newResult = connectedPopup.filter((d)=>d.id !== data.id);
+    const newResult = connectedPopup.filter((d)=>d.roomId !== data.roomId);
     setConnectedPopup(newResult);
   }
 
   return (
     <div className={cx('main')}>
-      <Messenger onChatPopupRequest={onChatPopupRequest} />
-      {connectedPopup.map((data)=><ChatPopup onClose={closePopup} data={data} key={data.id}/>)}
+      <Messenger onChatPopupRequest={onChatPopupRequest} connectionHeaders={connectionHeaders} brandId={brandId} serverUrl={serverUrl} />
+      {connectedPopup.map((data)=><ChatPopup onClose={closePopup} data={data} key={data.roomId} connectionHeaders={connectionHeaders} brandId={brandId} serverUrl={serverUrl} />)}
     </div>
   )
 }

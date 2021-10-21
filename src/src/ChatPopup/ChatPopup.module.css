@@ -16,9 +16,12 @@
 }
 
 .container .iconButton {
-  cursor: pointer;
   width:24px;
   height:24px;
+}
+
+.container .iconButton * {
+  cursor: pointer;
 }
 
 .container .header {
@@ -48,7 +51,7 @@
   background-color: white;
   display: flex;
   flex-direction: column;
-  padding: 16px 0px 32px 0px;
+  padding-bottom: 32px;
   box-sizing: border-box;
 }
 
@@ -88,6 +91,9 @@
   align-items: center;
   padding: 0px 16px;
   gap:10px;
+}
+.container .footer .toolbar .imageInput{
+  width:0;
 }
 
 .container .footer .chatInputArea {

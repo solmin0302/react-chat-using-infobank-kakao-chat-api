@@ -1,48 +1,103 @@
 import classNames from 'classnames/bind';
-import React, { useState } from 'react';
-import { ChatList } from './ChatList';
+import React, { useEffect, useRef, useState } from 'react';
+import { ChatRoomList } from './ChatRoomList';
 import styles from './Messenger.module.css';
 import { ReactComponent as MsgIcon } from '../../resources/images/msg-icon.svg';
 import { ReactComponent as ArrowIcon } from '../../resources/images/arrow-icon.svg';
 import { ReactComponent as SearchIcon } from '../../resources/images/search-icon.svg';
+import SockJsClient from 'react-stomp';
 
-export const Messenger = ({onChatPopupRequest, ...props}) => {
+export const Messenger = ({onChatPopupRequest, connectionHeaders, brandId, serverUrl, ...props}) => {
   const cx = classNames.bind(styles);
   const [minimized, setIsMinimized] = useState(false);
   const [searchInput, setSearchInput] = useState('');
-
-  const mockData = [
-    {'id':1,'name':'김수은1', 'date':'2021-10-04T12:30:00','latestMessage':'문의 채팅 ','unleadMessagecCount':3},
-    {'id':2,'name':'김수은2', 'date':'2021-10-03T00:30:00','latestMessage':'문의 채팅 내용 문의 채팅 내용 문의 채팅 내용 문의 채팅 내용 문의 채팅 내용 문의 채팅 내용','unleadMessagecCount':3},
-    {'id':3,'name':'김수은3', 'date':'2021-10-02T23:59:99','latestMessage':'문의 채팅 내용 문의 채팅 내용 문의 채팅 내용 문의 채팅 내용 문의 채팅 내용 문의 채팅 내용','unleadMessagecCount':3},
-    {'id':4,'name':'김수은4', 'date':'2021-09-20T12:30:00','latestMessage':'문의 채팅 내용 문의 채팅 내용 문의 채팅 내용 문의 채팅 내용 문의 채팅 내용 문의 채팅 내용','unleadMessagecCount':3},
-    {'id':5,'name':'김수은5', 'date':'2021-09-20T12:30:00','latestMessage':'문의 채팅 내용 문의 채팅 내용 문의 채팅 내용 문의 채팅 내용 문의 채팅 내용 문의 채팅 내용','unleadMessagecCount':3},
-    {'id':6,'name':'김수은6', 'date':'2021-09-20T12:30:00','latestMessage':'문의 채팅 내용 문의 채팅 내용 문의 채팅 내용 문의 채팅 내용 문의 채팅 내용 문의 채팅 내용','unleadMessagecCount':3},
-    {'id':7,'name':'김수은7', 'date':'2021-09-20T12:30:00','latestMessage':'문의 채팅 내용 문의 채팅 내용 문의 채팅 내용 문의 채팅 내용 문의 채팅 내용 문의 채팅 내용','unleadMessagecCount':3},
-    {'id':8,'name':'김수은8', 'date':'2021-09-20T12:30:00','latestMessage':'문의 채팅 내용 문의 채팅 내용 문의 채팅 내용 문의 채팅 내용 문의 채팅 내용 문의 채팅 내용','unleadMessagecCount':3},
-    {'id':9,'name':'김수은9', 'date':'2021-09-20T12:30:00','latestMessage':'문의 채팅 내용 문의 채팅 내용 문의 채팅 내용 문의 채팅 내용 문의 채팅 내용 문의 채팅 내용','unleadMessagecCount':3},
-    {'id':10,'name':'김수은10', 'date':'2021-09-20T12:30:00','latestMessage':'문의 채팅 내용 문의 채팅 내용 문의 채팅 내용 문의 채팅 내용 문의 채팅 내용 문의 채팅 내용','unleadMessagecCount':3},
-    {'id':11,'name':'김수은11', 'date':'2021-09-20T12:30:00','latestMessage':'문의 채팅 내용 문의 채팅 내용 문의 채팅 내용 문의 채팅 내용 문의 채팅 내용 문의 채팅 내용','unleadMessagecCount':3},
-    {'id':12,'name':'김수은12', 'date':'2021-09-20T12:30:00','latestMessage':'문의 채팅 내용 문의 채팅 내용 문의 채팅 내용 문의 채팅 내용 문의 채팅 내용 문의 채팅 내용','unleadMessagecCount':3},
-    {'id':13,'name':'김수은13', 'date':'2021-09-20T12:30:00','latestMessage':'문의 채팅 내용 문의 채팅 내용 문의 채팅 내용 문의 채팅 내용 문의 채팅 내용 문의 채팅 내용','unleadMessagecCount':3},
-    {'id':14,'name':'김수은14', 'date':'2021-09-20T12:30:00','latestMessage':'문의 채팅 내용 문의 채팅 내용 문의 채팅 내용 문의 채팅 내용 문의 채팅 내용 문의 채팅 내용','unleadMessagecCount':3},
-    {'id':15,'name':'김수은15', 'date':'2021-09-20T12:30:00','latestMessage':'문의 채팅 내용 문의 채팅 내용 문의 채팅 내용 문의 채팅 내용 문의 채팅 내용 문의 채팅 내용','unleadMessagecCount':3},
-    {'id':16,'name':'김수은16', 'date':'2021-09-20T12:30:00','latestMessage':'문의 채팅 내용 문의 채팅 내용 문의 채팅 내용 문의 채팅 내용 문의 채팅 내용 문의 채팅 내용','unleadMessagecCount':3},
-    {'id':17,'name':'김수은17', 'date':'2021-09-20T12:30:00','latestMessage':'문의 채팅 내용 문의 채팅 내용 문의 채팅 내용 문의 채팅 내용 문의 채팅 내용 문의 채팅 내용','unleadMessagecCount':3},
-  ];
+  const socketClient = useRef({});
+  const [unansweredCount, setUnansweredCount] = useState(0);
+  const [chatRoomList, setChatRoomList] = useState([]);
 
   const onMinimizeIconClicked = ()=>{
     let toggleValue = !minimized;
     setIsMinimized(toggleValue);
   };
 
+  const getChatRoomList = async () => {
+    try {
+      const response = await fetch(serverUrl+`/${brandId}/chat_room`,{
+        method: 'GET',
+        headers: connectionHeaders
+      });
+      const resJson = await response.json();
+  
+      const isResponseSuccess = response.status >= 200 && response.status < 400;
+      if(isResponseSuccess)
+      {
+        console.log(resJson);
+        setChatRoomList(sortRoomList(resJson.data));
+      }
+      else
+      {
+        console.log(resJson);
+        throw new Error(response.status);  
+      }
+    } catch(e) {
+      console.log(e);
+    }
+  }
+
+  const sortRoomList = (roomList) => {
+
+    const unansweredList = roomList.filter(room=>room.unansweredChats > 0);
+    const answeredList = roomList.filter(room=>room.unansweredChats == 0);
+
+    const sortByDate = (a,b) => {
+      const aTime = new Date(a.latestChat.messageDt);
+      const bTime = new Date(b.latestChat.messageDt);
+
+      return bTime - aTime;
+    }
+
+    unansweredList.sort(sortByDate);
+    answeredList.sort(sortByDate);
+
+    setUnansweredCount(unansweredList.length);
+
+    return [...unansweredList, ...answeredList];
+  }
+
+  const onNewChatComming = (message)=> {
+    // console.log("NEW MESSAGE -----------------");
+    // console.log(message);
+    const index = chatRoomList.findIndex(room=>room.roomId === message.roomId);
+    let newChatRoomList = [...chatRoomList];
+
+    if(index < 0)
+    {
+      newChatRoomList.push(message);
+    }
+    else
+    {
+      newChatRoomList[index] = message;
+    }
+
+    setChatRoomList(sortRoomList(newChatRoomList));
+  }
+
+  useEffect(()=>{
+    getChatRoomList();
+  },[])
+
   return (
     <div className={cx('container',minimized?'minimized':'')}>
+      <SockJsClient url='https://influencer-chat.fnf.co.kr/ws' topics={[`/sub/brand/${brandId}`]}
+        onMessage={onNewChatComming}
+        ref={socketClient}
+        headers={connectionHeaders}
+      />
       <div className={cx('header')} onClick={onMinimizeIconClicked}>
         <MsgIcon className={cx('msg-icon')}/>
         <div className={cx('content')}>
           <p className={cx('name')}>Discovery</p>
-          {true && minimized && <p className={cx('newMsgCount')}>{`답변대기 3`}</p>}
+          {(unansweredCount && minimized) ? <p className={cx('newMsgCount')}>{`답변대기 ${unansweredCount}`}</p> : null}
         </div>
         <ArrowIcon className={cx('minimize-icon',minimized?'flip':'')}/>
       </div>
@@ -50,7 +105,7 @@ export const Messenger = ({onChatPopupRequest, ...props}) => {
         <SearchIcon className={cx('search-icon')}/>
         <input className={cx('search-input')} type="text" placeholder="이름 또는 핸드폰번호 검색"/>
       </div>
-      <ChatList onItemClick={onChatPopupRequest} data={mockData}/>
+      <ChatRoomList onItemClick={onChatPopupRequest} data={chatRoomList}/>
     </div>
   )
 }

@@ -1,10 +1,13 @@
 .container {
   max-width: 280px;
-  margin-top: 16px;
+  padding-top: 16px;
+}
+
+.container.pending {
 }
 
 .container.continue {
-  margin-top: 8px;
+  padding-top: 8px;
 }
 
 .container.customer {
@@ -48,8 +51,27 @@
 
 .container .message .content .text{
   font-size: 14px;
+  white-space: pre-wrap;
+  word-break: break-all;
+  word-wrap: break-word;
 }
 
 .container.user .message .content .text{
   color: white;
 }
+
+.container .message .content .image{
+  width: 100%;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.container .message .content .file{
+  cursor: pointer;
+}
+
+.container .message .content .file .text{
+  text-decoration: underline;
+  color: blue;
+}
+

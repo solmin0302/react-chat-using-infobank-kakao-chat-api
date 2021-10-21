@@ -1,22 +1,33 @@
 import classNames from 'classnames/bind'
-import React, { createRef, useEffect, useState } from 'react'
+import React, {
+  createRef,
+  useCallback,
+  useEffect,
+  useRef,
+  useState
+} from 'react'
 import { ReactComponent as CloseIcon } from '../../resources/images/close-icon.svg'
 import { ReactComponent as ImageIcon } from '../../resources/images/image-icon.svg'
 import { ReactComponent as EmojiIcon } from '../../resources/images/emoji-icon.svg'
 import { ReactComponent as Dots } from '../../resources/images/dotdotdot.svg'
 import styles from './ChatPopup.module.css'
-import { createMockMessage } from '../utils/util'
-import { lowerCase } from 'lodash'
 import { SystemMessage } from './SystemMessage'
 import { UserMessage } from './UserMessage'
+import SockJsClient from 'react-stomp'
 
-export const ChatPopup = ({ onClose, data, ...props }) => {
-  const cx = classNames.bind(styles)
+export const ChatPopup = ({ onClose, data, connectionHeaders, brandId, serverUrl, ...props }) => {
+  const { roomId, customerName } = data;
+  const cx = classNames.bind(styles);
   const [inputValue, setInputValue] = useState('');
   const [inputHeight, setInputHeight] = useState(22);
   const [messageList, setMessageList] = useState([]);
   const [scrollInitialized, setScrollInitialized] = useState(false);
-  const contentContainer = createRef(null);
+  const [writingUser, setWritingUser] = useState('');
+  const messageListRef = useRef([]);
+  const contentContainer = useRef(null);
+  const chatOffset = useRef(null);
+  const socketClient = useRef({});
+  const previousFirstChild = useRef(null);
 
   const onInputChange = (e) => {
     const targetHeight = Math.min(e.target.scrollHeight, 126);
@@ -24,50 +35,185 @@ export const ChatPopup = ({ onClose, data, ...props }) => {
     setInputValue(e.target.value);
   }
 
-  const getPreviousMessageList = () => {
-    // 서버 Response로 바뀌어야?
-    let response = createMockMessage(20);
+  const getPreviousMessageList = async () => {
+    try {
+      const response = await fetch(
+        serverUrl +
+          `/${brandId}/chat_room/${roomId}/chat_logs${
+            chatOffset.current !== null ? `?offset=${chatOffset.current}` : ''
+          }`,
+        {
+          method: 'GET',
+          headers: connectionHeaders
+        }
+      )
+      const resJson = await response.json();
 
-    let previousChat = null;
-    let result = [...messageList, ...response];
+      const isResponseSuccess = response.status >= 200 && response.status < 400
+      if (isResponseSuccess) {
+        let previousChat = null
+        let result = [...resJson.data.reverse(), ...messageListRef.current]
 
-    result = result.map((chat)=>{
-      chat.isSameSpeakerAsPrevious = previousChat && previousChat.speaker === chat.speaker;
-      previousChat = chat;
-      return chat;
-    });
+        result = result.map((chat) => {
+          chat.isSameSpeakerAsPrevious =
+            previousChat && previousChat.speaker === chat.speaker
+          previousChat = chat
+          return chat
+        })
+        previousFirstChild.current = contentContainer.current.firstChild;
 
-    setMessageList(result);
+        setMessageList(result)
+        messageListRef.current = result
+        chatOffset.current = resJson.nextOffset;
+        console.log(result);
+      } else {
+        console.log(resJson)
+        throw new Error(response.status)
+      }
+    } catch (e) {
+      console.log(e)
+    }
   }
 
   const createMessage = (chat) => {
     return chat.speaker === 'SYSTEM' ? (
-      <SystemMessage data={chat} />
+      <SystemMessage data={chat} key={chat.id} />
     ) : (
-      <UserMessage data={chat} />
+      <UserMessage data={chat} key={chat.id} />
     )
+  }
+
+  const onNewChatComming = (message, channelName) => {
+    // console.log("NEW MESSAGE!");
+    // console.log(message);
+    // console.log(channelName);
+
+    if (channelName.includes('room_activity')) {
+    } else {
+      const index = messageList.findIndex(
+        (prevMsg) => prevMsg.id === message.id
+      )
+
+      if (index !== -1) {
+        let newResult = [...messageList]
+        newResult[index].status = message.status
+        newResult[index].errorMessage = message.errorMessage
+
+        setMessageList(newResult)
+        messageListRef.current = newResult
+      } else {
+        const prevMessage = messageList.length
+          ? messageList[messageList.length - 1]
+          : null
+        message.isSameSpeakerAsPrevious =
+          prevMessage && prevMessage.speaker === message.speaker
+
+        const newResult = [...messageList, message]
+        setMessageList(newResult)
+        messageListRef.current = newResult
+      }
+    }
+  }
+
+  const onMessageClicked = () => {
+    // console.log("MESSAGE SEND CLICKED!!! ");
+    if (inputValue === '') {
+      return
+    }
+
+    const message = {
+      chatRoomId: roomId, // 채팅 룸 아이디
+      messageText: inputValue, // 메시지 내용. 최대 1000자
+      refKey: null, // 클라이언트 전달 참조 키
+      botEvent: null // 실행할 챗봇 이벤트
+    }
+    // console.log(message);
+    // console.log(socketClient.current);
+    socketClient.current.sendMessage('/pub/message', JSON.stringify(message))
+    setInputValue('')
+    setInputHeight(22)
+  }
+
+  const onScroll = (e) => {
+    if (e.target.scrollTop === 0 && chatOffset.current !== -1) {
+      // console.log('NEED MORE!!!!!!!!')
+      getPreviousMessageList();
+    }
+  }
+
+  const onImageSelected = async (e) => {
+    try {
+      const body = new FormData()
+      body.append('file', e.target.files[0])
+
+      const response = await fetch(serverUrl + `/${brandId}/chat/${roomId}/file`, {
+        method: 'POST',
+        headers: connectionHeaders,
+        body: body
+      })
+      const resJson = await response.json()
+
+      const isResponseSuccess = response.status >= 200 && response.status < 400
+      if (isResponseSuccess) {
+        console.log(resJson)
+      } else {
+        console.log(resJson)
+        throw new Error(response.status)
+      }
+    } catch (e) {
+      console.log(e)
+    }
   }
 
   useEffect(() => {
     getPreviousMessageList();
-    // 스크롤 상태가 최 하단이 아니면 내려가는거 보여주기
-    // 현재 스크롤 상태가 최 하단이면 내려야됨
+    contentContainer.current.addEventListener('scroll', onScroll)
+    return () =>
+      contentContainer.current?.removeEventListener('scroll', onScroll);
   }, [])
 
-
   useEffect(() => {
+    // console.log("MESSAGE IS CHANGED!!");
+    const { scrollTop, scrollHeight, offsetHeight } = contentContainer.current
+    // console.log(`ScrollTop : ${scrollTop}`);
+    // console.log(`scrollHeight : ${scrollHeight}`);
+    // console.log(`offsetHeight : ${offsetHeight}`);
+    const needToGoBottom =
+      scrollTop > 0 && Math.abs(scrollHeight - (scrollTop + offsetHeight)) < 100
+    const isFirstLoad = messageList.length > 0 && !scrollInitialized
+    // console.log(`needToGoBottom : ${needToGoBottom}`);
+    // console.log(`is First : ${isFirstLoad}`);
+
     // 첫 메시지 불러왔을 때만 아래로 내려버림
-    if (messageList.length > 0 && !scrollInitialized) {
-      contentContainer.current.scrollTop = Number.MAX_SAFE_INTEGER;
-      console.log(contentContainer.current.scrollTop)
-      setScrollInitialized(true);
+    if (isFirstLoad || needToGoBottom) {
+      contentContainer.current.scrollTop = Number.MAX_SAFE_INTEGER
+      setScrollInitialized(true)
     }
-  }, [messageList, scrollInitialized]);
+    else if(previousFirstChild.current) {
+      // console.log("MAY BE U LOAD MORE!");
+      // console.log(previousFirstChild.current);
+      // console.log(previousFirstChild.current.scrollTop);
+      // console.log(`offsetHeight : ${previousFirstChild.current.offsetHeight}`);
+      previousFirstChild.current.scrollIntoView();
+      previousFirstChild.current = null;
+    }
+
+  }, [messageList, scrollInitialized])
 
   return (
     <div className={cx('container')}>
+      <SockJsClient
+        url='https://influencer-chat.fnf.co.kr/ws'
+        topics={[`/sub/room/${roomId}`, `/sub/room_activity/${roomId}`]}
+        onMessage={onNewChatComming}
+        ref={socketClient}
+        headers={connectionHeaders}
+        onDisconnect={(e) => {
+          console.log(`DISCONNECTED /sub/room_activity/${roomId}`);
+        }}
+      />
       <div className={cx('header')}>
-        <p className={cx('name')}>{data.name}</p>
+        <p className={cx('name')}>{customerName}</p>
         <div className={cx('iconButton')} onClick={() => onClose(data)}>
           <CloseIcon />
         </div>
@@ -78,7 +224,16 @@ export const ChatPopup = ({ onClose, data, ...props }) => {
       <div className={cx('footer')}>
         <div className={cx('toolbar')}>
           <div className={cx('iconButton')}>
-            <ImageIcon />
+            <label htmlFor={`${roomId}-file-input`}>
+              <ImageIcon />
+            </label>
+            <input
+              id={`${roomId}-file-input`}
+              type='file'
+              accept='image/*'
+              onChange={onImageSelected}
+              className={cx('imageInput')}
+            />
           </div>
           <div className={cx('iconButton')}>
             <EmojiIcon />
@@ -91,22 +246,29 @@ export const ChatPopup = ({ onClose, data, ...props }) => {
             onChange={onInputChange}
             className={cx('chatInput')}
             placeholder='값을 입력 해 주세요'
+            onKeyPress={(e) => {
+              if (e.key == 'Enter' && !e.shiftKey && !e.ctrlKey && !e.altKey) {
+                e.preventDefault()
+                onMessageClicked()
+              }
+            }}
           />
-          <button className={cx('submit', inputValue !== '' && 'enable')}>
+          <button
+            className={cx('submit', inputValue !== '' && 'enable')}
+            onClick={onMessageClicked}
+          >
             전송
           </button>
         </div>
         <div className={cx('ingText')}>
           {false && (
             <>
-              <p>zzz님이 입력중입니다</p>
-              <Dots/>
+              <p>{`${writingUser}님이 입력중입니다`}</p>
+              <Dots />
             </>
           )}
         </div>
-        <div className={cx('newMessageBar',false&&'active')}>
-          
-        </div>
+        <div className={cx('newMessageBar', false && 'active')}></div>
       </div>
     </div>
   )
