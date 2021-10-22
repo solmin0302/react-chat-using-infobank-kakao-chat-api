@@ -15,24 +15,31 @@ import { SystemMessage } from './SystemMessage'
 import { UserMessage } from './UserMessage'
 import SockJsClient from 'react-stomp'
 
-export const ChatPopup = ({ onClose, data, connectionHeaders, brandId, serverUrl, ...props }) => {
-  const { roomId, customerName } = data;
-  const cx = classNames.bind(styles);
-  const [inputValue, setInputValue] = useState('');
-  const [inputHeight, setInputHeight] = useState(22);
-  const [messageList, setMessageList] = useState([]);
-  const [scrollInitialized, setScrollInitialized] = useState(false);
-  const [writingUser, setWritingUser] = useState('');
-  const messageListRef = useRef([]);
-  const contentContainer = useRef(null);
-  const chatOffset = useRef(null);
-  const socketClient = useRef({});
-  const previousFirstChild = useRef(null);
+export const ChatPopup = ({
+  onClose,
+  data,
+  connectionHeaders,
+  brandId,
+  serverUrl,
+  ...props
+}) => {
+  const { roomId, customerName } = data
+  const cx = classNames.bind(styles)
+  const [inputValue, setInputValue] = useState('')
+  const [inputHeight, setInputHeight] = useState(22)
+  const [messageList, setMessageList] = useState([])
+  const [scrollInitialized, setScrollInitialized] = useState(false)
+  const [writingUser, setWritingUser] = useState('')
+  const messageListRef = useRef([])
+  const contentContainer = useRef(null)
+  const chatOffset = useRef(null)
+  const socketClient = useRef({})
+  const previousFirstChild = useRef(null)
 
   const onInputChange = (e) => {
-    const targetHeight = Math.min(e.target.scrollHeight, 126);
-    setInputHeight(e.target.value === '' ? 22 : targetHeight);
-    setInputValue(e.target.value);
+    const targetHeight = Math.min(e.target.scrollHeight, 126)
+    setInputHeight(e.target.value === '' ? 22 : targetHeight)
+    setInputValue(e.target.value)
   }
 
   const getPreviousMessageList = async () => {
@@ -47,7 +54,7 @@ export const ChatPopup = ({ onClose, data, connectionHeaders, brandId, serverUrl
           headers: connectionHeaders
         }
       )
-      const resJson = await response.json();
+      const resJson = await response.json()
 
       const isResponseSuccess = response.status >= 200 && response.status < 400
       if (isResponseSuccess) {
@@ -60,12 +67,12 @@ export const ChatPopup = ({ onClose, data, connectionHeaders, brandId, serverUrl
           previousChat = chat
           return chat
         })
-        previousFirstChild.current = contentContainer.current.firstChild;
+        previousFirstChild.current = contentContainer.current.firstChild
 
         setMessageList(result)
         messageListRef.current = result
-        chatOffset.current = resJson.nextOffset;
-        console.log(result);
+        chatOffset.current = resJson.nextOffset
+        console.log(result)
       } else {
         console.log(resJson)
         throw new Error(response.status)
@@ -95,7 +102,7 @@ export const ChatPopup = ({ onClose, data, connectionHeaders, brandId, serverUrl
       )
 
       if (index !== -1) {
-        let newResult = [...messageList]
+        const newResult = [...messageList]
         newResult[index].status = message.status
         newResult[index].errorMessage = message.errorMessage
 
@@ -134,23 +141,21 @@ export const ChatPopup = ({ onClose, data, connectionHeaders, brandId, serverUrl
     setInputHeight(22)
   }
 
-  const onScroll = (e) => {
-    if (e.target.scrollTop === 0 && chatOffset.current !== -1) {
-      // console.log('NEED MORE!!!!!!!!')
-      getPreviousMessageList();
-    }
-  }
+  console.log(contentContainer)
 
   const onImageSelected = async (e) => {
     try {
       const body = new FormData()
       body.append('file', e.target.files[0])
 
-      const response = await fetch(serverUrl + `/${brandId}/chat/${roomId}/file`, {
-        method: 'POST',
-        headers: connectionHeaders,
-        body: body
-      })
+      const response = await fetch(
+        serverUrl + `/${brandId}/chat/${roomId}/file`,
+        {
+          method: 'POST',
+          headers: connectionHeaders,
+          body: body
+        }
+      )
       const resJson = await response.json()
 
       const isResponseSuccess = response.status >= 200 && response.status < 400
@@ -165,11 +170,35 @@ export const ChatPopup = ({ onClose, data, connectionHeaders, brandId, serverUrl
     }
   }
 
+  function onMouseWheel(e) {
+    // e.wheelDelta 는 현재 wheel 이 현재 움직이는 중인지 확인하기 위함임
+    // 새로운 컴포넌트에 또 필요하면 컴포넌트 별로 eventListener 달아줘야함.
+    var delta = e.type === 'mousewheel' ? e.wheelDelta : e.detail * -1
+    const el = contentContainer.current
+    if (delta < 0 && el.scrollHeight - el.offsetHeight - el.scrollTop <= 0) {
+      el.scrollTop = el.scrollHeight
+      e.preventDefault()
+    } else if (delta > 0 && delta > el.scrollTop) {
+      el.scrollTop = 0
+      e.preventDefault()
+    }
+  }
+
+  function onScroll(e) {
+    if (e.target.scrollTop === 0 && chatOffset.current !== -1) {
+      // console.log('NEED MORE!!!!!!!!')
+      getPreviousMessageList()
+    }
+  }
+
   useEffect(() => {
-    getPreviousMessageList();
+    getPreviousMessageList()
+    contentContainer.current.addEventListener('mousewheel', onMouseWheel)
     contentContainer.current.addEventListener('scroll', onScroll)
-    return () =>
-      contentContainer.current?.removeEventListener('scroll', onScroll);
+    return () => {
+      contentContainer.current.removeEventListener('mousewheel', onMouseWheel)
+      contentContainer.current.removeEventListener('scroll', onScroll)
+    }
   }, [])
 
   useEffect(() => {
@@ -188,16 +217,14 @@ export const ChatPopup = ({ onClose, data, connectionHeaders, brandId, serverUrl
     if (isFirstLoad || needToGoBottom) {
       contentContainer.current.scrollTop = Number.MAX_SAFE_INTEGER
       setScrollInitialized(true)
-    }
-    else if(previousFirstChild.current) {
+    } else if (previousFirstChild.current) {
       // console.log("MAY BE U LOAD MORE!");
       // console.log(previousFirstChild.current);
       // console.log(previousFirstChild.current.scrollTop);
       // console.log(`offsetHeight : ${previousFirstChild.current.offsetHeight}`);
-      previousFirstChild.current.scrollIntoView();
-      previousFirstChild.current = null;
+      previousFirstChild.current.scrollIntoView()
+      previousFirstChild.current = null
     }
-
   }, [messageList, scrollInitialized])
 
   return (
@@ -209,7 +236,7 @@ export const ChatPopup = ({ onClose, data, connectionHeaders, brandId, serverUrl
         ref={socketClient}
         headers={connectionHeaders}
         onDisconnect={(e) => {
-          console.log(`DISCONNECTED /sub/room_activity/${roomId}`);
+          console.log(`DISCONNECTED /sub/room_activity/${roomId}`)
         }}
       />
       <div className={cx('header')}>
@@ -268,7 +295,7 @@ export const ChatPopup = ({ onClose, data, connectionHeaders, brandId, serverUrl
             </>
           )}
         </div>
-        <div className={cx('newMessageBar', false && 'active')}></div>
+        <div className={cx('newMessageBar', false && 'active')} />
       </div>
     </div>
   )
