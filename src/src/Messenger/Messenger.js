@@ -88,7 +88,7 @@ export const Messenger = ({onChatPopupRequest, connectionHeaders, brandId, serve
 
   return (
     <div className={cx('container',minimized?'minimized':'')}>
-      <SockJsClient url='https://influencer-chat.fnf.co.kr/ws' topics={[`/sub/brand/${brandId}`]}
+      <SockJsClient url={`${serverUrl}/ws`} topics={[`/sub/brand/${brandId}`]}
         onMessage={onNewChatComming}
         ref={socketClient}
         headers={connectionHeaders}

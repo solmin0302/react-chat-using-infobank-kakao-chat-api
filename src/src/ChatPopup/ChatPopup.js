@@ -202,7 +202,7 @@ export const ChatPopup = ({ onClose, data, connectionHeaders, brandId, serverUrl
   return (
     <div className={cx('container')}>
       <SockJsClient
-        url='https://influencer-chat.fnf.co.kr/ws'
+        url={`${serverUrl}/ws`}
         topics={[`/sub/room/${roomId}`, `/sub/room_activity/${roomId}`]}
         onMessage={onNewChatComming}
         ref={socketClient}
