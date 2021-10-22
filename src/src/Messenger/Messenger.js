@@ -15,20 +15,21 @@ export const Messenger = ({onChatPopupRequest, connectionHeaders, brandId, brand
   const [unansweredCount, setUnansweredCount] = useState(0);
   const [chatRoomList, setChatRoomList] = useState([]);
 
-  const onMinimizeIconClicked = ()=>{
-    let toggleValue = !minimized;
+  const onMinimizeIconClicked = () => {
+    const toggleValue = !minimized;
     setIsMinimized(toggleValue);
   };
 
   const getChatRoomList = async () => {
     try {
-      const response = await fetch(serverUrl+`/${brandId}/chat_room`,{
+      const response = await fetch(serverUrl + `/${brandId}/chat_room`, {
         method: 'GET',
-        headers: connectionHeaders
+        headers: connectionHeaders,
       });
       const resJson = await response.json();
-  
+
       const isResponseSuccess = response.status >= 200 && response.status < 400;
+<<<<<<< HEAD
       if(isResponseSuccess)
       {
         // console.log(resJson);
@@ -38,23 +39,30 @@ export const Messenger = ({onChatPopupRequest, connectionHeaders, brandId, brand
       {
         // console.log(resJson);
         throw new Error(response.status);  
+=======
+      if (isResponseSuccess) {
+        console.log(resJson);
+        setChatRoomList(sortRoomList(resJson.data));
+      } else {
+        console.log(resJson);
+        throw new Error(response.status);
+>>>>>>> 48ed61f (chore: update .prettierrc / vscode common setting / formatted codes)
       }
-    } catch(e) {
+    } catch (e) {
       console.log(e);
     }
-  }
+  };
 
   const sortRoomList = (roomList) => {
+    const unansweredList = roomList.filter((room) => room.unansweredChats > 0);
+    const answeredList = roomList.filter((room) => room.unansweredChats == 0);
 
-    const unansweredList = roomList.filter(room=>room.unansweredChats > 0);
-    const answeredList = roomList.filter(room=>room.unansweredChats == 0);
-
-    const sortByDate = (a,b) => {
+    const sortByDate = (a, b) => {
       const aTime = new Date(a.latestChat.messageDt);
       const bTime = new Date(b.latestChat.messageDt);
 
       return bTime - aTime;
-    }
+    };
 
     unansweredList.sort(sortByDate);
     answeredList.sort(sortByDate);
@@ -62,50 +70,67 @@ export const Messenger = ({onChatPopupRequest, connectionHeaders, brandId, brand
     setUnansweredCount(unansweredList.length);
 
     return [...unansweredList, ...answeredList];
-  }
+  };
 
-  const onNewChatComming = (message)=> {
+  const onNewChatComming = (message) => {
     // console.log("NEW MESSAGE -----------------");
     // console.log(message);
-    const index = chatRoomList.findIndex(room=>room.roomId === message.roomId);
-    let newChatRoomList = [...chatRoomList];
+    const index = chatRoomList.findIndex(
+      (room) => room.roomId === message.roomId
+    );
+    const newChatRoomList = [...chatRoomList];
 
-    if(index < 0)
-    {
+    if (index < 0) {
       newChatRoomList.push(message);
-    }
-    else
-    {
+    } else {
       newChatRoomList[index] = message;
     }
 
     setChatRoomList(sortRoomList(newChatRoomList));
-  }
+  };
 
-  useEffect(()=>{
+  useEffect(() => {
     getChatRoomList();
-  },[])
+  }, []);
 
   return (
+<<<<<<< HEAD
     <div className={cx('container',minimized?'minimized':'')}>
       <SockJsClient url={`${serverUrl}/ws`} topics={[`/sub/brand/${brandId}`]}
+=======
+    <div className={cx('container', minimized ? 'minimized' : '')}>
+      <SockJsClient
+        url="https://influencer-chat.fnf.co.kr/ws"
+        topics={[`/sub/brand/${brandId}`]}
+>>>>>>> 48ed61f (chore: update .prettierrc / vscode common setting / formatted codes)
         onMessage={onNewChatComming}
         ref={socketClient}
         headers={connectionHeaders}
       />
       <div className={cx('header')} onClick={onMinimizeIconClicked}>
-        <MsgIcon className={cx('msg-icon')}/>
+        <MsgIcon className={cx('msg-icon')} />
         <div className={cx('content')}>
+<<<<<<< HEAD
           <p className={cx('name')}>{brandName}</p>
           {(unansweredCount && minimized) ? <p className={cx('newMsgCount')}>{`답변대기 ${unansweredCount}`}</p> : null}
+=======
+          <p className={cx('name')}>Discovery</p>
+          {unansweredCount && minimized ? (
+            <p className={cx('newMsgCount')}>{`답변대기 ${unansweredCount}`}</p>
+          ) : null}
+>>>>>>> 48ed61f (chore: update .prettierrc / vscode common setting / formatted codes)
         </div>
-        <ArrowIcon className={cx('minimize-icon',minimized?'flip':'')}/>
+        <ArrowIcon className={cx('minimize-icon', minimized ? 'flip' : '')} />
       </div>
       <div className={cx('search')}>
-        <SearchIcon className={cx('search-icon')}/>
-        <input className={cx('search-input')} type="text" placeholder="이름 또는 핸드폰번호 검색"/>
+        <SearchIcon className={cx('search-icon')} />
+        <input
+          className={cx('search-input')}
+          type="text"
+          placeholder="이름 또는 핸드폰번호 검색"
+        />
       </div>
-      <ChatRoomList onItemClick={onChatPopupRequest} data={chatRoomList}/>
+      <ChatRoomList onItemClick={onChatPopupRequest} data={chatRoomList} />
     </div>
-  )
-}
+  );
+};

@@ -1,11 +1,11 @@
 .container {
-  width:100%;
-  flex:1;
-  background-color: #E5EAEE;
+  width: 100%;
+  flex: 1;
+  background-color: #e5eaee;
   overflow-y: auto;
   overflow-x: hidden;
   box-sizing: border-box;
   font-weight: 400;
   font-size: 14px;
-  color: #1B283F;
+  color: #1b283f;
 }
