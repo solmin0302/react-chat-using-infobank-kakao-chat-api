@@ -1,7 +1,7 @@
 import classNames from 'classnames/bind';
 import React, { useEffect, useRef, useState } from 'react';
 import { ChatRoomList } from './ChatRoomList';
-import styles from './Messenger.module.css';
+import styles from './Messenger.module.scss';
 import { ReactComponent as MsgIcon } from '../../resources/images/msg-icon.svg';
 import { ReactComponent as ArrowIcon } from '../../resources/images/arrow-icon.svg';
 import { ReactComponent as SearchIcon } from '../../resources/images/search-icon.svg';

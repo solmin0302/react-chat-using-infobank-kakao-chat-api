@@ -1,7 +1,7 @@
 import classNames from 'classnames/bind'
 import React, { useEffect, useState, Fragment } from 'react'
 import { ReactComponent as EmojiIcon } from '../../resources/images/emoji-icon.svg'
-import styles from './UserMessage.module.css'
+import styles from './UserMessage.module.scss'
 
 export const UserMessage = ({ data, ...props }) => {
   const {

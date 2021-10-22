@@ -10,7 +10,7 @@ import { ReactComponent as CloseIcon } from '../../resources/images/close-icon.s
 import { ReactComponent as ImageIcon } from '../../resources/images/image-icon.svg'
 import { ReactComponent as EmojiIcon } from '../../resources/images/emoji-icon.svg'
 import { ReactComponent as Dots } from '../../resources/images/dotdotdot.svg'
-import styles from './ChatPopup.module.css'
+import styles from './ChatPopup.module.scss'
 import { SystemMessage } from './SystemMessage'
 import { UserMessage } from './UserMessage'
 import SockJsClient from 'react-stomp'

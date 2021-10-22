@@ -1,6 +1,6 @@
 import classNames from 'classnames/bind';
 import React, { useEffect, useRef, useState } from 'react'
-import styles from './index.css'
+import styles from './index.scss'
 import { Messenger } from './src/Messenger/Messenger';
 import { debounce, rest } from 'lodash';
 import { ChatPopup } from './src/ChatPopup/ChatPopup';
