@@ -1,6 +1,6 @@
 import classNames from 'classnames/bind';
 import React, { useState } from 'react';
-import styles from './ChatRoomListItem.module.scss';
+import styles from './ChatRoomListItem.module.css';
 
 export const ChatRoomListItem = ({onItemClick, data, ...props}) => {
   const cx = classNames.bind(styles);

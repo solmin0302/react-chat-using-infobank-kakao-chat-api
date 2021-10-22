@@ -1,13 +1,16 @@
-div, p {
-  padding: 0;
-  margin: 0;
-  box-sizing: border-box;
-  font-weight: 400;
+.container input, textarea {
   font-size: 14px;
-  color: #1B283F;
+  font-weight: 400;
+}
+
+.container.minimized {
+  transform: translateY(100%) translateY(-48px);
 }
 
 .container {
+  box-sizing: border-box;
+  font-size: 14px;
+  color: #1B283F;
   display: flex;
   flex-direction: column;
   height: calc(100vh - 100px);
@@ -23,17 +26,12 @@ div, p {
   animation: fade-in 167ms cubic-bezier(.4,0,1,1);
   margin-left:16px;
 
-  input, textarea {
-    font-size: 14px;
-    font-weight: 400;
-  }
 }
 
-.minimized {
-  transform: translateY(100%) translateY(-48px);
-}
-
-.header {
+.container .header {
+  box-sizing: border-box;
+  font-size: 14px;
+  color: #1B283F;
   width: 100%;
   height:48px;
   display: flex;
@@ -49,17 +47,17 @@ div, p {
   cursor: pointer;
 }
 
-.header .content {
+.container .header .content {
   display: flex;
   flex:1;
   flex-direction: row;
   margin:0 5px 0 2px;
 }
 
-.header .content .name {
+.container .header .content .name {
 }
 
-.header .content .newMsgCount {
+.container .header .content .newMsgCount {
   margin-left: 10px;
   width:fit-content;
   height:fit-content;
@@ -70,27 +68,30 @@ div, p {
   padding: 2px 4px;
 }
 
-.header .content .newMsgCount p{
+.container .header .content .newMsgCount p{
   font-size: 11px;
   color: white;
 }
 
-.header .minimize-icon {
+.container .header .minimize-icon {
   width:24px;
   height:24px;
   transform: rotate(0);
 }
 
-.header .msg-icon {
+.container .header .msg-icon {
   width:32px;
   height:32px;
 }
 
-.header .flip {
+.container .header .flip {
   transform: rotate(180deg);
 }
 
-.search {
+.container .search {
+  box-sizing: border-box;
+  font-size: 14px;
+  color: #1B283F;
   margin:16px;
   padding:0px 16px;
   height:36px;
@@ -101,16 +102,16 @@ div, p {
   align-items: center;
 }
 
-.search .search-icon {
+.container .search .search-icon {
   margin-right: 10px;
 }
 
-.search .search-input {
+.container .search .search-input {
   flex:1;
   outline: 0;
   border: none;
 }
 
-.search .search-input::placeholder {
+.container .search .search-input::placeholder {
   color: #B5B5C3; 
 }

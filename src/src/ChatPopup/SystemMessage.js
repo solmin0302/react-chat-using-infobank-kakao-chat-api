@@ -1,6 +1,6 @@
 import classNames from 'classnames/bind'
 import React, { useEffect, useState } from 'react'
-import styles from './SystemMessage.module.scss'
+import styles from './SystemMessage.module.css'
 
 export const SystemMessage = ({ data, ...props }) => {
   const cx = classNames.bind(styles)
