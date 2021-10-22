@@ -5,7 +5,7 @@ import { Messenger } from './src/Messenger/Messenger';
 import { debounce, rest } from 'lodash';
 import { ChatPopup } from './src/ChatPopup/ChatPopup';
 
-export const KakaoChat = ({ connectionHeaders, brandId, serverUrl, userId, ...rest }) => {
+export const KakaoChat = ({ connectionHeaders, brandId, brandName, serverUrl, userId, ...rest }) => {
   const [connectedPopup, setConnectedPopup] = useState([]);
   const [maximumPopupCount, setMaximumPopupCount] = useState(0);
 
@@ -58,7 +58,7 @@ export const KakaoChat = ({ connectionHeaders, brandId, serverUrl, userId, ...re
 
   return (
     <div className={cx('kakao-using-infobank-main')}>
-      <Messenger onChatPopupRequest={onChatPopupRequest} connectionHeaders={connectionHeaders} brandId={brandId} serverUrl={serverUrl} />
+      <Messenger onChatPopupRequest={onChatPopupRequest} connectionHeaders={connectionHeaders} brandId={brandId} serverUrl={serverUrl} brandName={brandName}/>
       {connectedPopup.map((data)=><ChatPopup onClose={closePopup} data={data} key={data.roomId} connectionHeaders={connectionHeaders} brandId={brandId} serverUrl={serverUrl} />)}
     </div>
   )

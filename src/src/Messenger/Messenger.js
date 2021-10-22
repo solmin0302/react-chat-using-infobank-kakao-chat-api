@@ -7,9 +7,9 @@ import { ReactComponent as ArrowIcon } from '../../resources/images/arrow-icon.s
 import { ReactComponent as SearchIcon } from '../../resources/images/search-icon.svg';
 import SockJsClient from 'react-stomp';
 
-export const Messenger = ({onChatPopupRequest, connectionHeaders, brandId, serverUrl, ...props}) => {
+export const Messenger = ({onChatPopupRequest, connectionHeaders, brandId, brandName, serverUrl, ...props}) => {
   const cx = classNames.bind(styles);
-  const [minimized, setIsMinimized] = useState(false);
+  const [minimized, setIsMinimized] = useState(true);
   const [searchInput, setSearchInput] = useState('');
   const socketClient = useRef({});
   const [unansweredCount, setUnansweredCount] = useState(0);
@@ -96,7 +96,7 @@ export const Messenger = ({onChatPopupRequest, connectionHeaders, brandId, serve
       <div className={cx('header')} onClick={onMinimizeIconClicked}>
         <MsgIcon className={cx('msg-icon')}/>
         <div className={cx('content')}>
-          <p className={cx('name')}>Discovery</p>
+          <p className={cx('name')}>{brandName}</p>
           {(unansweredCount && minimized) ? <p className={cx('newMsgCount')}>{`답변대기 ${unansweredCount}`}</p> : null}
         </div>
         <ArrowIcon className={cx('minimize-icon',minimized?'flip':'')}/>
