@@ -1,3 +1,12 @@
+div, p {
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+  font-weight: 400;
+  font-size: 14px;
+  color: #1B283F;
+}
+
 .container {
   width:100%;
   flex:1;
@@ -6,13 +15,13 @@
   overflow-x: hidden;
 }
 
-.container::-webkit-scrollbar {
-  width: 6px;
-  background-color: white; /* or add it to the track */
-}
+// .container::-webkit-scrollbar {
+//   width: 6px;
+//   background-color: white; /* or add it to the track */
+// }
 
-.container::-webkit-scrollbar-thumb {
-  width:6px;
-  background-color: rgba(0, 0, 0, 0.38);
-  border-radius: 3px;
-}
+// .container::-webkit-scrollbar-thumb {
+//   width:6px;
+//   background-color: rgba(0, 0, 0, 0.38);
+//   border-radius: 3px;
+// }

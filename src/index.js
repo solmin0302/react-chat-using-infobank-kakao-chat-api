@@ -57,7 +57,7 @@ export const KakaoChat = ({ connectionHeaders, brandId, serverUrl, userId, ...re
   }
 
   return (
-    <div className={cx('main')}>
+    <div className={cx('kakao-using-infobank-main')}>
       <Messenger onChatPopupRequest={onChatPopupRequest} connectionHeaders={connectionHeaders} brandId={brandId} serverUrl={serverUrl} />
       {connectedPopup.map((data)=><ChatPopup onClose={closePopup} data={data} key={data.roomId} connectionHeaders={connectionHeaders} brandId={brandId} serverUrl={serverUrl} />)}
     </div>

@@ -65,7 +65,7 @@ export const ChatPopup = ({ onClose, data, connectionHeaders, brandId, serverUrl
         setMessageList(result)
         messageListRef.current = result
         chatOffset.current = resJson.nextOffset;
-        console.log(result);
+        // console.log(result);
       } else {
         console.log(resJson)
         throw new Error(response.status)
@@ -96,8 +96,7 @@ export const ChatPopup = ({ onClose, data, connectionHeaders, brandId, serverUrl
 
       if (index !== -1) {
         let newResult = [...messageList]
-        newResult[index].status = message.status
-        newResult[index].errorMessage = message.errorMessage
+        newResult[index] = message;
 
         setMessageList(newResult)
         messageListRef.current = newResult

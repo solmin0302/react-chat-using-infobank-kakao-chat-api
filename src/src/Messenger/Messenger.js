@@ -31,12 +31,12 @@ export const Messenger = ({onChatPopupRequest, connectionHeaders, brandId, serve
       const isResponseSuccess = response.status >= 200 && response.status < 400;
       if(isResponseSuccess)
       {
-        console.log(resJson);
+        // console.log(resJson);
         setChatRoomList(sortRoomList(resJson.data));
       }
       else
       {
-        console.log(resJson);
+        // console.log(resJson);
         throw new Error(response.status);  
       }
     } catch(e) {
