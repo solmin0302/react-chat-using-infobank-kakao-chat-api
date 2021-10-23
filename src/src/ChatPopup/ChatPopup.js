@@ -36,6 +36,7 @@ export const ChatPopup = ({
   const chatOffset = useRef(null);
   const socketClient = useRef({});
   const previousFirstChild = useRef(null);
+  const textareaRef = useRef(null);
 
   const onInputChange = (e) => {
     const targetHeight = Math.min(e.target.scrollHeight, 126);
@@ -244,6 +245,10 @@ export const ChatPopup = ({
     if (isFirstLoad || needToGoBottom) {
       contentContainer.current.scrollTop = Number.MAX_SAFE_INTEGER;
       setScrollInitialized(true);
+
+      if (textareaRef) {
+        textareaRef.current.focus();
+      }
     } else if (previousFirstChild.current) {
       // console.log("MAY BE U LOAD MORE!");
       // console.log(previousFirstChild.current);
@@ -311,6 +316,7 @@ export const ChatPopup = ({
               }
             }}
             disabled={inputDisabled}
+            ref={textareaRef}
           />
           <button
             className={cx('submit', inputValue !== '' && 'enable')}
