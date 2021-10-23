@@ -51,10 +51,12 @@ textarea {
   display: flex;
   flex: 1;
   flex-direction: row;
-  margin: 0 5px 0 2px;
+  margin: 0 5px 0 10px;
+  align-items: center;
 }
 
 .container .header .content .name {
+  margin: 0;
 }
 
 .container .header .content .newMsgCount {

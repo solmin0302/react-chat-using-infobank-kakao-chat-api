@@ -36,6 +36,7 @@ export const ChatPopup = ({
   const chatOffset = useRef(null);
   const socketClient = useRef({});
   const previousFirstChild = useRef(null);
+  const textareaRef = useRef(null);
 
   const onInputChange = (e) => {
     const targetHeight = Math.min(e.target.scrollHeight, 126);
@@ -172,7 +173,6 @@ export const ChatPopup = ({
     // e.wheelDelta 는 현재 wheel 이 현재 움직이는 중인지 확인하기 위함임
     // 새로운 컴포넌트에 또 필요하면 컴포넌트 별로 eventListener 달아줘야함.
     var delta = e.type === 'mousewheel' ? e.wheelDelta : e.detail * -40;
-    console.log(delta);
     const el = contentContainer.current;
 
     const scrollableArea = el.scrollHeight - el.offsetHeight;
@@ -244,6 +244,10 @@ export const ChatPopup = ({
     if (isFirstLoad || needToGoBottom) {
       contentContainer.current.scrollTop = Number.MAX_SAFE_INTEGER;
       setScrollInitialized(true);
+
+      if (textareaRef) {
+        textareaRef.current.focus();
+      }
     } else if (previousFirstChild.current) {
       // console.log("MAY BE U LOAD MORE!");
       // console.log(previousFirstChild.current);
@@ -311,6 +315,7 @@ export const ChatPopup = ({
               }
             }}
             disabled={inputDisabled}
+            ref={textareaRef}
           />
           <button
             className={cx('submit', inputValue !== '' && 'enable')}
