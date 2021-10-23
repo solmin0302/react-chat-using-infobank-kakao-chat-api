@@ -157,6 +157,11 @@
   color: #b5b5c3;
 }
 
+.container .footer .chatInputArea .chatInput[disabled] {
+  color: #b5b5c3;
+  background-color: white;
+}
+
 .container .footer .chatInputArea .submit {
   -webkit-appearance: none;
   -moz-appearance: none;
