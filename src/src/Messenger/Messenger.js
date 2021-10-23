@@ -7,7 +7,14 @@ import { ReactComponent as ArrowIcon } from '../../resources/images/arrow-icon.s
 import { ReactComponent as SearchIcon } from '../../resources/images/search-icon.svg';
 import SockJsClient from 'react-stomp';
 
-export const Messenger = ({onChatPopupRequest, connectionHeaders, brandId, brandName, serverUrl, ...props}) => {
+export const Messenger = ({
+  onChatPopupRequest,
+  connectionHeaders,
+  brandId,
+  brandName,
+  serverUrl,
+  ...props
+}) => {
   const cx = classNames.bind(styles);
   const [minimized, setIsMinimized] = useState(true);
   const [searchInput, setSearchInput] = useState('');
@@ -29,24 +36,12 @@ export const Messenger = ({onChatPopupRequest, connectionHeaders, brandId, brand
       const resJson = await response.json();
 
       const isResponseSuccess = response.status >= 200 && response.status < 400;
-<<<<<<< HEAD
-      if(isResponseSuccess)
-      {
-        // console.log(resJson);
-        setChatRoomList(sortRoomList(resJson.data));
-      }
-      else
-      {
-        // console.log(resJson);
-        throw new Error(response.status);  
-=======
       if (isResponseSuccess) {
-        console.log(resJson);
+        // console.log(resJson);
         setChatRoomList(sortRoomList(resJson.data));
       } else {
-        console.log(resJson);
+        // console.log(resJson);
         throw new Error(response.status);
->>>>>>> 48ed61f (chore: update .prettierrc / vscode common setting / formatted codes)
       }
     } catch (e) {
       console.log(e);
@@ -94,15 +89,10 @@ export const Messenger = ({onChatPopupRequest, connectionHeaders, brandId, brand
   }, []);
 
   return (
-<<<<<<< HEAD
-    <div className={cx('container',minimized?'minimized':'')}>
-      <SockJsClient url={`${serverUrl}/ws`} topics={[`/sub/brand/${brandId}`]}
-=======
     <div className={cx('container', minimized ? 'minimized' : '')}>
       <SockJsClient
-        url="https://influencer-chat.fnf.co.kr/ws"
+        url={`${serverUrl}/ws`}
         topics={[`/sub/brand/${brandId}`]}
->>>>>>> 48ed61f (chore: update .prettierrc / vscode common setting / formatted codes)
         onMessage={onNewChatComming}
         ref={socketClient}
         headers={connectionHeaders}
@@ -110,15 +100,10 @@ export const Messenger = ({onChatPopupRequest, connectionHeaders, brandId, brand
       <div className={cx('header')} onClick={onMinimizeIconClicked}>
         <MsgIcon className={cx('msg-icon')} />
         <div className={cx('content')}>
-<<<<<<< HEAD
           <p className={cx('name')}>{brandName}</p>
-          {(unansweredCount && minimized) ? <p className={cx('newMsgCount')}>{`답변대기 ${unansweredCount}`}</p> : null}
-=======
-          <p className={cx('name')}>Discovery</p>
           {unansweredCount && minimized ? (
             <p className={cx('newMsgCount')}>{`답변대기 ${unansweredCount}`}</p>
           ) : null}
->>>>>>> 48ed61f (chore: update .prettierrc / vscode common setting / formatted codes)
         </div>
         <ArrowIcon className={cx('minimize-icon', minimized ? 'flip' : '')} />
       </div>

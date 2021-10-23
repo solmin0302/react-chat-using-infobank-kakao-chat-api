@@ -67,6 +67,7 @@ export const KakaoChat = ({
         onChatPopupRequest={onChatPopupRequest}
         connectionHeaders={connectionHeaders}
         brandId={brandId}
+        brandName={brandName}
         serverUrl={serverUrl}
         brandName={brandName}
       />
@@ -77,6 +78,7 @@ export const KakaoChat = ({
           key={data.roomId}
           connectionHeaders={connectionHeaders}
           brandId={brandId}
+          brandName={brandName}
           serverUrl={serverUrl}
         />
       ))}
