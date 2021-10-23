@@ -28,6 +28,7 @@ export const ChatPopup = ({
   const [inputValue, setInputValue] = useState('');
   const [inputHeight, setInputHeight] = useState(22);
   const [messageList, setMessageList] = useState([]);
+  const [inputDisabled, setInputDisabled] = useState(false);
   const [scrollInitialized, setScrollInitialized] = useState(false);
   const [writingUser, setWritingUser] = useState('');
   const messageListRef = useRef([]);
@@ -140,8 +141,6 @@ export const ChatPopup = ({
     setInputHeight(22);
   };
 
-  console.log(contentContainer);
-
   const onImageSelected = async (e) => {
     try {
       const body = new FormData();
@@ -204,7 +203,31 @@ export const ChatPopup = ({
     };
   }, []);
 
+  const checkInputDisabled = () => {
+    // console.log('DISABLED CHECK!');
+    let result = false;
+    const lastItem =
+      messageList && messageList.length
+        ? messageList[messageList.length - 1]
+        : null;
+
+    // console.log(lastItem);
+
+    if (
+      lastItem &&
+      lastItem.speaker === 'SYSTEM' &&
+      (lastItem.systemActivityType === 'USER_BLOCKED' ||
+        lastItem.systemActivityType === 'END_SESSION')
+    ) {
+      result = true;
+    }
+    // console.log(result);
+
+    setInputDisabled(result);
+  };
+
   useEffect(() => {
+    checkInputDisabled();
     // console.log("MESSAGE IS CHANGED!!");
     const { scrollTop, scrollHeight, offsetHeight } = contentContainer.current;
     // console.log(`ScrollTop : ${scrollTop}`);
@@ -276,13 +299,18 @@ export const ChatPopup = ({
             value={inputValue}
             onChange={onInputChange}
             className={cx('chatInput')}
-            placeholder="값을 입력 해 주세요"
+            placeholder={
+              inputDisabled
+                ? '상담이 불가능한 채널입니다'
+                : '값을 입력 해 주세요'
+            }
             onKeyPress={(e) => {
               if (e.key == 'Enter' && !e.shiftKey && !e.ctrlKey && !e.altKey) {
                 e.preventDefault();
                 onMessageClicked();
               }
             }}
+            disabled={inputDisabled}
           />
           <button
             className={cx('submit', inputValue !== '' && 'enable')}
