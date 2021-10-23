@@ -173,7 +173,6 @@ export const ChatPopup = ({
     // e.wheelDelta 는 현재 wheel 이 현재 움직이는 중인지 확인하기 위함임
     // 새로운 컴포넌트에 또 필요하면 컴포넌트 별로 eventListener 달아줘야함.
     var delta = e.type === 'mousewheel' ? e.wheelDelta : e.detail * -40;
-    console.log(delta);
     const el = contentContainer.current;
 
     const scrollableArea = el.scrollHeight - el.offsetHeight;

@@ -5,6 +5,31 @@ import styles from './ChatRoomListItem.module.css';
 export const ChatRoomListItem = ({ onItemClick, data, ...props }) => {
   const cx = classNames.bind(styles);
 
+  const getLatestMessage = () => {
+    let latestMessage = data.latestChat.messageText;
+    console.log(data);
+
+    switch (data.latestChat.messageType) {
+      case 'IMAGE':
+        latestMessage = '[ 이미지 ]';
+        break;
+      case 'AUDIO':
+        latestMessage = '[ 오디오 ]';
+        break;
+      case 'VIDEO':
+        latestMessage = '[ 비디오 ]';
+        break;
+      case 'FILE':
+        latestMessage = '[ 파일 ]';
+        break;
+      case 'LINK':
+        latestMessage = '[ 링크 ]';
+        break;
+    }
+
+    return latestMessage;
+  };
+
   const getToday = () => {
     const today = new Date();
     const todayString = `${today.getFullYear()}-${today.getMonth() + 1}-${
@@ -43,7 +68,7 @@ export const ChatRoomListItem = ({ onItemClick, data, ...props }) => {
         <p className={cx('date')}>{getTimeString(data.latestChat.messageDt)}</p>
       </div>
       <div className={cx('content')}>
-        <p className={cx('latestMessage')}>{data.latestChat.messageText}</p>
+        <p className={cx('latestMessage')}>{getLatestMessage()}</p>
         {data.unansweredChats ? (
           <p className={cx('newMsgCount')}>답변대기</p>
         ) : null}
