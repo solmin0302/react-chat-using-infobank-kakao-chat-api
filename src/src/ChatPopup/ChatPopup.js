@@ -14,6 +14,7 @@ import styles from './ChatPopup.module.css';
 import { SystemMessage } from './SystemMessage';
 import { UserMessage } from './UserMessage';
 import SockJsClient from 'react-stomp';
+import { preventDoubleScroll } from '../utils/util';
 
 export const ChatPopup = ({
   onClose,
@@ -104,7 +105,7 @@ export const ChatPopup = ({
       );
 
       if (index !== -1) {
-        let newResult = [...messageList];
+        const newResult = [...messageList];
         newResult[index] = message;
 
         setMessageList(newResult);
@@ -169,23 +170,6 @@ export const ChatPopup = ({
     }
   };
 
-  function onMouseWheel(e) {
-    // e.wheelDelta 는 현재 wheel 이 현재 움직이는 중인지 확인하기 위함임
-    // 새로운 컴포넌트에 또 필요하면 컴포넌트 별로 eventListener 달아줘야함.
-    var delta = e.type === 'mousewheel' ? e.wheelDelta : e.detail * -40;
-    const el = contentContainer.current;
-
-    const scrollableArea = el.scrollHeight - el.offsetHeight;
-
-    if (delta < 0 && scrollableArea - el.scrollTop <= 0) {
-      el.scrollTop = el.scrollHeight;
-      e.preventDefault();
-    } else if (delta > 0 && delta > el.scrollTop) {
-      el.scrollTop = 0;
-      e.preventDefault();
-    }
-  }
-
   function onScroll(e) {
     if (e.target.scrollTop === 0 && chatOffset.current !== -1) {
       // console.log('NEED MORE!!!!!!!!')
@@ -195,10 +179,14 @@ export const ChatPopup = ({
 
   useEffect(() => {
     getPreviousMessageList();
-    contentContainer.current.addEventListener('mousewheel', onMouseWheel);
+    contentContainer.current.addEventListener('mousewheel', (event) =>
+      preventDoubleScroll(event, contentContainer.current)
+    );
     contentContainer.current.addEventListener('scroll', onScroll);
     return () => {
-      contentContainer.current.removeEventListener('mousewheel', onMouseWheel);
+      contentContainer.current.removeEventListener('mousewheel', (event) =>
+        preventDoubleScroll(event, contentContainer.current)
+      );
       contentContainer.current.removeEventListener('scroll', onScroll);
     };
   }, []);
