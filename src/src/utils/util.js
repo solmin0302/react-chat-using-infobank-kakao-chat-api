@@ -131,3 +131,20 @@ export const createMockMessage = function (size) {
 
   return result;
 };
+
+export const preventDoubleScroll = (e, dom) => {
+  // e.wheelDelta 는 현재 wheel 이 현재 움직이는 중인지 확인하기 위함임
+  // 새로운 컴포넌트에 또 필요하면 컴포넌트 별로 eventListener 달아줘야함.
+  var delta = e.type === 'mousewheel' ? e.wheelDelta : e.detail * -40;
+  const el = dom;
+
+  const scrollableArea = el.scrollHeight - el.offsetHeight;
+
+  if (delta < 0 && scrollableArea - el.scrollTop <= 0) {
+    el.scrollTop = el.scrollHeight;
+    e.preventDefault();
+  } else if (delta > 0 && delta > el.scrollTop) {
+    el.scrollTop = 0;
+    e.preventDefault();
+  }
+};
